@@ -1,0 +1,108 @@
+Name     nobl-rev1 ;
+PartNo   00 ;
+Date     12/11/2024 ;
+Revision 01 ;
+Designer Reza ;
+Company  Reza ;
+Assembly None ;
+Location  ;
+Device   f1502isptqfp44;
+
+PROPERTY ATMEL {JTAG=ON};
+
+PIN 2 = !WRITE;
+PIN 3 = !DTACK;
+PIN 5 = !AS;
+PIN 6 = S3;
+PIN 8 = S2;
+PIN 10 = S1;
+PIN 12 = ZZ;
+PIN 20 = !DIR;
+PIN 21 = !ADDRON;
+PIN 22 = A19;
+PIN 23 = A17;
+PIN 25 = A16;
+PIN 27 = !LOAD;
+PIN 28 = !RAM_OE;
+PIN 30 = !CEN;
+PIN 31 = RAM_CS;
+PIN 33 = !ROM_CS;
+PIN 34 = A22;
+PIN 35 = A23;
+PIN 37 = A20;
+PIN 38 = A21;
+PIN 39 = CLOCK;
+PIN 40 = !RESET;
+PIN 42 = !EXT_DTACK;
+PIN 43 = A18;
+PIN 44 = !POWER;
+
+NODE AS1;
+NODE AS2;
+NODE AS3;
+
+ZZ = !POWER;
+LOAD = 'd'1;
+CEN = 'd'1;
+ADDRON = 'd'1;
+
+FIELD ADDRESS = [A23..16];
+
+RAM_8MB = ADDRESS:['h'100000..'h'8FFFFF];
+RAM_4MB = ADDRESS:['h'100000..'h'4FFFFF];
+EXPANSION_ROM = ADDRESS:['h'A00000..'h'AFFFFF];
+DIAG_ROM = ADDRESS:['h'F80000..'h'F8FFFF];
+
+EXPANSION_RAM = RAM_8MB & S1
+              # RAM_4MB & !S1;
+
+VALID = AS & POWER & !RESET;
+
+RAM_SELECTED = EXPANSION_RAM & VALID;
+ROM_SELECTED = EXPANSION_ROM & VALID & S3;
+DIAG_SELECTED = DIAG_ROM & VALID & S2;
+
+RAM_READ = RAM_SELECTED & !WRITE;
+DIR = RAM_READ;
+
+RAM_CS = RAM_SELECTED;
+RAM_OE = RAM_SELECTED & !WRITE;
+
+ROM_CS = ROM_SELECTED # DIAG_SELECTED;
+
+DTACK.oe = DTACK;
+
+FIELD ASCount = [AS3..AS1];
+
+SEQUENCED ASCount {
+    PRESENT 'd'0
+    IF AS   NEXT 'd'1;
+    IF !AS  NEXT 'd'0;
+PRESENT 'd'1
+    IF AS   NEXT 'd'2;
+    IF !AS  NEXT 'd'0;
+PRESENT 'd'2
+    IF AS   NEXT 'd'3;
+    IF !AS  NEXT 'd'0;
+PRESENT 'd'3
+    IF AS   NEXT 'd'4;
+    IF !AS  NEXT 'd'0;
+PRESENT 'd'4
+    IF AS   NEXT 'd'5;
+    IF !AS  NEXT 'd'0;
+PRESENT 'd'5
+    IF AS   NEXT 'd'6;
+    IF !AS  NEXT 'd'0;
+PRESENT 'd'6
+    IF AS   NEXT 'd'7;
+    IF !AS  NEXT 'd'0;
+PRESENT 'd'7
+    IF AS   NEXT 'd'7;
+    IF !AS  NEXT 'd'0;
+}
+
+ASCount.ck = CLOCK;
+
+DTACK   = RAM_SELECTED & AS
+        # ROM_SELECTED & ASCount:['d'2..'d'8]
+        # DIAG_SELECTED & ASCount:['d'4..'d'8];
