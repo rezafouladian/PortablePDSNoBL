@@ -2,4 +2,4 @@ A PDS card for the Macintosh Portable adding 8MB of RAM running at zero wait sta
 
 Note: To get the full 9MB total (1MB internal + 8MB expansion) on the model M5126 backlit Macintosh Portable, a mapping modification is needed on the logic board otherwise only 8MB total will be usable.
 
-For the generated Gerber board files, see [https://github.com/rezafouladian/PortablePDSNoBL/releases](https://github.com/rezafouladian/PortablePDSNoBL/releases)
+For the generated Gerber board files, see [Releases](https://github.com/rezafouladian/PortablePDSNoBL/releases)
