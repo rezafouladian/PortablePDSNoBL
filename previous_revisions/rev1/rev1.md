@@ -15,3 +15,6 @@ Add 10kΩ resistor from S3 to GND
 Connect U3 pin 22 to GND  
 Connect U7 pin 22 to GND  
 Connect U10 pin 22 to GND  
+
+# Additional Files
+Revision 1 board files and CPLD files [available here](https://github.com/rezafouladian/PortablePDSNoBL/releases/tag/rev1).
