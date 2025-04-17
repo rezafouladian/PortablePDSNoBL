@@ -1,0 +1,122 @@
+Name     nobl-rev2 ;
+PartNo   00 ;
+Date     04/17/2025 ;
+Revision 02 ;
+Designer Reza ;
+Company  Reza ;
+Assembly None ;
+Location  ;
+Device   f1502isptqfp44;
+
+PROPERTY ATMEL {JTAG=ON};
+
+
+/* Input Pins */
+PIN 2  = !Write;            /* R/W from the 68000 */
+PIN 5  = !AS;               /* Address strobe from the 68000 */
+PIN 39 = CLOCK;
+PIN 40 = !RESET;
+PIN 44 = !POWER;
+/* Address lines from the 68000 */
+PIN 25 = A16;
+PIN 23 = A17;
+PIN 43 = A18;
+PIN 22 = A19;
+PIN 37 = A20;
+PIN 38 = A21;
+PIN 34 = A22;
+PIN 35 = A23;
+/* DIP switches */
+PIN 10 = S1;
+PIN 8  = S2;
+PIN 6  = S3;
+
+/* Output Pins */
+PIN 3  = !DTACK;            /* Data transfer acknowledge to the 68000 */
+PIN 42 = !EXT_DTACK;        /* External DTACK to the CPU GLU */
+/* Bus transceiver control */
+PIN 18 = !Data_EN_Low;
+PIN 19 = !Data_EN_High;
+PIN 20 = !Data_Direction;   
+PIN 21 = !ADDRON;
+/* RAM control */
+PIN 12 = ZZ;
+PIN 27 = !LOAD;
+PIN 28 = !RAM_OE;
+PIN 30 = !CEN;
+PIN 31 = RAM_CS;
+PIN 33 = !ROM_CS;
+
+/* AS Counter nodes */
+NODE AS1;
+NODE AS2;
+NODE AS3;
+
+ZZ              = !POWER;
+LOAD            = 'd'1;
+CEN             = 'd'1;
+ADDRON          = 'd'1;
+
+FIELD ADDRESS   = [A23..16];
+
+RAM_8MB         = ADDRESS:['h'100000..'h'8FFFFF];
+RAM_4MB         = ADDRESS:['h'100000..'h'4FFFFF];
+EXPANSION_ROM   = ADDRESS:['h'A00000..'h'AFFFFF];
+DIAG_ROM        = ADDRESS:['h'F80000..'h'F8FFFF];
+
+EXPANSION_RAM   = RAM_8MB & S1
+                # RAM_4MB & !S1;
+
+VALID           = AS & POWER & !RESET;
+
+RAM_SELECTED    = EXPANSION_RAM & VALID;
+ROM_SELECTED    = EXPANSION_ROM & VALID & S3;
+DIAG_SELECTED   = DIAG_ROM & VALID & S2;
+
+Data_EN_Low     = RAM_SELECTED;
+Data_EN_High    = RAM_SELECTED;
+
+RAM_READ        = RAM_SELECTED & !Write;
+Data_Direction  = RAM_READ;
+
+RAM_CS          = RAM_SELECTED;
+RAM_OE          = RAM_SELECTED & !Write;
+
+ROM_CS          = ROM_SELECTED # DIAG_SELECTED;
+
+DTACK.oe        = DTACK;
+
+FIELD ASCount   = [AS3..AS1];
+
+SEQUENCED ASCount {
+    PRESENT 'd'0
+    IF AS   NEXT 'd'1;
+    IF !AS  NEXT 'd'0;
+PRESENT 'd'1
+    IF AS   NEXT 'd'2;
+    IF !AS  NEXT 'd'0;
+PRESENT 'd'2
+    IF AS   NEXT 'd'3;
+    IF !AS  NEXT 'd'0;
+PRESENT 'd'3
+    IF AS   NEXT 'd'4;
+    IF !AS  NEXT 'd'0;
+PRESENT 'd'4
+    IF AS   NEXT 'd'5;
+    IF !AS  NEXT 'd'0;
+PRESENT 'd'5
+    IF AS   NEXT 'd'6;
+    IF !AS  NEXT 'd'0;
+PRESENT 'd'6
+    IF AS   NEXT 'd'7;
+    IF !AS  NEXT 'd'0;
+PRESENT 'd'7
+    IF AS   NEXT 'd'7;
+    IF !AS  NEXT 'd'0;
+}
+
+ASCount.ck      = CLOCK;
+
+DTACK           = RAM_SELECTED & AS                     /* Run RAM as close to zero wait states as possible */
+                # ROM_SELECTED & ASCount:['d'2..'d'8]   /* ROM at about 2 wait states */
+                # DIAG_SELECTED & ASCount:['d'4..'d'8]; /* Slow down ROM accesses for the diag ROM range */
