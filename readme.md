@@ -11,6 +11,10 @@ For previous revisions, open the previous_revisions folder or [click here](previ
 
 For the generated Gerber board files and CPLD files, see [Releases](https://github.com/rezafouladian/PortablePDSNoBL/releases)
 
+## Rev 1 Board Image
+
+![](pdsram1.jpg)
+
 ## DIP Switch Settings
 
 | SW | Off | On |
