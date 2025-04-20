@@ -15,6 +15,16 @@ For the generated Gerber board files and CPLD files, see [Releases](https://gith
 
 ![](pdsram1.jpg)
 
+## Speed Comparison
+
+With access to the <span style="text-decoration:overline">DTACK</span> signal, RAM access speeds are greatly increased compared to regular 8MB RAM cards, especially when going over the 5MB mark.  
+
+![](speed.png)
+
+The speed difference is quite noticable in regular use with the stack being located at the end of RAM.
+
+This also gets around a design issue where RAM above 5MB may run slower after sleep if the address for an unreleased Apple accessory has not been accessed.
+
 ## DIP Switch Settings
 
 | SW | Off | On |
